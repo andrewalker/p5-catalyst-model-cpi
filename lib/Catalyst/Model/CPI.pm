@@ -6,6 +6,7 @@ use Module::Pluggable (
         'Business::CPI::Gateway::Base',
         'Business::CPI::Gateway::Test',
     ],
+    sub_name    => 'available_gateways',
     require     => 1,
 );
 use Moo::Role ();
@@ -35,15 +36,17 @@ around BUILDARGS => sub {
     return $args;
 };
 
-sub COMPONENT {
+before COMPONENT => sub {
     my ($self, $ctx) = @_;
 
-    for ($self->plugins) {
-        Moo::Role->apply_roles_to_package(
-            $_, 'Business::CPI::Role::Request'
-        );
+    for ($self->available_gateways) {
+        if ($_->isa('Business::CPI::Gateway::Base') && $_->can('notify')) {
+            Moo::Role->apply_roles_to_package(
+                $_, 'Business::CPI::Role::Request'
+            );
+        }
     }
-}
+};
 
 sub ACCEPT_CONTEXT {
     my ($self, $ctx) = @_;
@@ -58,7 +61,7 @@ sub get {
 
     if (!$self->exists($name)) {
         local $" = ", ";
-        my @plugins = $self->plugins;
+        my @plugins = $self->available_gateways;
         die "Can't get gateway $name. Available gateways are @plugins";
     }
 
@@ -75,7 +78,7 @@ sub exists {
 
     my $fullname = "Business::CPI::Gateway::$name";
 
-    for ($self->plugins) {
+    for ($self->available_gateways) {
         return 1 if $_ eq $fullname;
     }
 
