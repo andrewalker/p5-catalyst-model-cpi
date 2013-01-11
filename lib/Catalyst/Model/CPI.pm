@@ -64,7 +64,7 @@ sub get {
 
     my $fullname = "Business::CPI::Gateway::$name";
 
-    my %args = %{ $self->get_config_for_gateway($gateway) };
+    my %args = %{ $self->get_config_for_gateway($name) };
     $args{req} = $self->_req;
 
     return $fullname->new(%args);
