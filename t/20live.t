@@ -1,10 +1,34 @@
 use warnings;
 use strict;
+use File::Path qw/make_path remove_tree/;
 use Test::More;
 use FindBin '$Bin';
-use lib "$Bin/lib";
 
-use Catalyst::Test qw/TestApp/;
+BEGIN {
+    remove_tree "$Bin/lib/Business" if -d "$Bin/lib/Business";
+    make_path "$Bin/lib/Business/CPI/Gateway";
+
+    for (1..2) {
+        my $filename = "$Bin/lib/Business/CPI/Gateway/TestGateway${_}.pm";
+        open my $fh, '>', $filename;
+        print $fh <<"MY_TEST_GTW";
+package Business::CPI::Gateway::TestGateway$_;
+use Moo;
+extends 'Business::CPI::Gateway::Base';
+
+has user => (is => 'ro');
+has key  => (is => 'ro');
+
+sub notify {}
+
+1;
+
+MY_TEST_GTW
+        close $fh;
+    }
+};
+
+use lib "$Bin/lib";
 use TestApp;
 use Class::Load qw/is_class_loaded/;
 
@@ -44,3 +68,5 @@ ok(!is_class_loaded('Business::CPI::Gateway::Test'), 'Test was NOT loaded');
 }
 
 done_testing;
+
+remove_tree "$Bin/lib/Business";
