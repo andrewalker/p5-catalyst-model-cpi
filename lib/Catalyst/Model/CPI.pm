@@ -1,4 +1,5 @@
 package Catalyst::Model::CPI;
+# ABSTRACT: Business::CPI models for Catalyst
 use Moose;
 use Module::Pluggable (
     search_path => [ 'Business::CPI::Gateway' ],
@@ -12,6 +13,8 @@ use Module::Pluggable (
 use Moo::Role ();
 
 extends 'Catalyst::Model';
+
+# VERSION
 
 has config_for_gateway => (
     isa     => 'HashRef',
