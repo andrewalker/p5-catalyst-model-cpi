@@ -2,6 +2,10 @@ package Catalyst::Model::CPI;
 use Moose;
 use Module::Pluggable (
     search_path => [ 'Business::CPI::Gateway' ],
+    except      => [
+        'Business::CPI::Gateway::Base',
+        'Business::CPI::Gateway::Test',
+    ],
     require     => 1,
 );
 use Moo::Role ();
