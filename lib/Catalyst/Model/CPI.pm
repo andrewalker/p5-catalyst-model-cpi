@@ -16,13 +16,13 @@ extends 'Catalyst::Model';
 
 # VERSION
 
-has config_for_gateway => (
+has _config_for_gateway => (
     isa     => 'HashRef',
     is      => 'ro',
     default => sub { +{} },
     traits  => ['Hash'],
     handles => {
-        get_config_for_gateway => 'get',
+        _get_config_for_gateway => 'get',
     },
 );
 
@@ -34,7 +34,7 @@ around BUILDARGS => sub {
 
     my $args = $self->$orig(@_);
 
-    $args->{config_for_gateway} = delete $args->{gateway};
+    $args->{_config_for_gateway} = delete $args->{gateway};
 
     return $args;
 };
@@ -70,7 +70,7 @@ sub get {
 
     my $fullname = "Business::CPI::Gateway::$name";
 
-    my %args = %{ $self->get_config_for_gateway($name) };
+    my %args = %{ $self->_get_config_for_gateway($name) };
     $args{req} = $self->_req;
 
     return $fullname->new(%args);
@@ -87,6 +87,62 @@ sub exists {
 
     return 0;
 }
+
+=pod
+
+=head1 SYNOPSIS
+
+=head1 DESCRIPTION
+
+=method available_gateways
+
+List all the class names for the installed CPI gateways.
+
+    my @gateways = $ctx->model('Payments')->available_gateways;
+
+=method get
+
+Returns a new instance of the gateway, with all the configuration passed as
+arguments to the constructor.
+
+    my $cart = $ctx->model('Payments')->get('PayPal')->new_cart(...);
+
+=method exists
+
+Check whether the provided gateway is really installed.
+
+    if ($model->exists($gateway)) {
+        ...
+    }
+
+=method ACCEPT_CONTEXT
+
+Saves the request, so that C<< $gateway->notify >> can receive it
+automatically. See the  L<Catalyst docs|Catalyst::Component/ACCEPT_CONTEXT> for
+details.
+
+=head1 CONFIGURATION
+
+    <model Payments>
+        <gateway PayPal>
+            api_username   ...
+            api_password   ...
+            signature      ...
+            receiver_email seller@test.com
+            sandbox 1
+        </gateway>
+
+        <gateway PagSeguro>
+            receiver_email seller@test.com
+            ...
+        </gateway>
+
+        <gateway Custom>
+            foo bar
+        </gateway>
+    </model>
+
+=cut
 
 package # hide from PAUSE
     Business::CPI::Role::Request;
@@ -107,5 +163,3 @@ around notify => sub {
 };
 
 1;
-
-__END__
