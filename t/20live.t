@@ -51,6 +51,7 @@ ok(!is_class_loaded('Business::CPI::Gateway::Test'), 'Test was NOT loaded');
     ok(my $g = $model->get('TestGateway1'), 'the gateway can be gotten by the module');
     isa_ok($g, 'Business::CPI::Gateway::TestGateway1', 'the gateway');
     isa_ok($g->req, 'Catalyst::Request', 'the request attribute');
+    isa_ok($g->log, 'Catalyst::Log', 'the log attribute');
     is($g->user, 'a', 'The configuration parameter `user` was passed correctly to the gateway constructor');
     is($g->key,  '123', '... as well as the key');
 }
@@ -63,6 +64,7 @@ ok(!is_class_loaded('Business::CPI::Gateway::Test'), 'Test was NOT loaded');
     ok(my $g = $model->get('TestGateway2'), 'the gateway can be gotten by the module');
     isa_ok($g, 'Business::CPI::Gateway::TestGateway2', 'the gateway');
     isa_ok($g->req, 'Catalyst::Request', 'the request attribute');
+    isa_ok($g->log, 'Catalyst::Log', 'the log attribute');
     is($g->user, 'b', 'The configuration parameter `user` was passed correctly to the gateway constructor');
     is($g->key,  '456', '... as well as the key');
 }

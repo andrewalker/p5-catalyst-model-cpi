@@ -27,6 +27,7 @@ has _config_for_gateway => (
 );
 
 has _req => ( is => 'rw' );
+has _log => ( is => 'rw' );
 
 around BUILDARGS => sub {
     my $orig = shift;
@@ -55,6 +56,7 @@ sub ACCEPT_CONTEXT {
     my ($self, $ctx) = @_;
 
     $self->_req($ctx->req);
+    $self->_log($ctx->log);
 
     return $self;
 }
@@ -72,6 +74,7 @@ sub get {
 
     my %args = %{ $self->_get_config_for_gateway($name) };
     $args{req} = $self->_req;
+    $args{log} = $self->_log;
 
     return $fullname->new(%args);
 }
