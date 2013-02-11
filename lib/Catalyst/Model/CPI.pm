@@ -95,7 +95,65 @@ sub exists {
 
 =head1 SYNOPSIS
 
+In the config:
+
+    <model Payments>
+        <gateway PayPal>
+            api_username   ...
+            api_password   ...
+            signature      ...
+            receiver_email seller@test.com
+            sandbox 1
+        </gateway>
+
+        <gateway X> ... </gateway>
+
+        <gateway Y> ... </gateway>
+    </model>
+
+In the controller:
+
+    # It should be configured in PayPal's IPN, for example, the notify_url as:
+    # http://myserver/api/store/notification/PayPal
+    # Other gateways are similar.
+    sub gtw_notification : Chained('/api/store') PathPart('notification') Args(1) {
+        my ($self, $ctx, $gateway_name) = @_;
+
+        my $model = $ctx->model('Payments');
+
+        if ( !$model->exists($gateway_name) ) {
+            my $gtw_list = join ", ", $model->available_gateways;
+            die "$gateway_name is not available.\n"
+              . "Available gateways are: $gtw_list.";
+        }
+
+        my $notification = $model->get($gateway_name)->notify;
+
+        my $purchase = $ctx->model('DB::Purchase')->find( $notification->{payment_id} );
+        $purchase->update({ payment_status => $notification->{status} });
+
+        ...
+    }
+
+    sub checkout : Chained('/website/cart') PathPart Args(0) {
+        my ($self, $ctx) = @_;
+
+        my $model = $ctx->model('Payments');
+        my $cart  = $ctx->session->{cart};
+
+        # create a form for each available gateway
+        my @forms = map {
+            $model->get($_)->new_cart($cart)->get_form_to_pay("${_}_form")
+        } $model->available_gateways;
+
+        $ctx->stash->{checkout_forms} = \@forms;
+    }
+
 =head1 DESCRIPTION
+
+This module connects CPI gateways to a Catalyst application. It automatically
+loads the configuration from Catalyst and uses it to instantiate the gateways
+when requested through this model.
 
 =method available_gateways
 
