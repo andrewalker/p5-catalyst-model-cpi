@@ -1,0 +1,9 @@
+Revision history for Perl module Catalyst::Model::CPI.
+
+{{$NEXT}}
+    - Create Changes file
+    - Add real documentation
+    - Define required dependencies versions
+
+0.01  2013-01-13T02:58:11Z
+    - Initial version
