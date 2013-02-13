@@ -1,6 +1,9 @@
 Revision history for Perl module Catalyst::Model::CPI.
 
 {{$NEXT}}
+    - Update dependencies versions, to fix issue with old Module::Pluggable
+
+0.02  2013-02-11T20:45:12Z
     - Create Changes file
     - Add real documentation
     - Define required dependencies versions
